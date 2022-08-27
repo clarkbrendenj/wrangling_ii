@@ -1,4 +1,4 @@
-Wrangling_ii
+wrangling data reading data
 ================
 
 ``` r
@@ -15,51 +15,19 @@ library(tidyverse)
     ## ✖ dplyr::lag()    masks stats::lag()
 
 ``` r
-library(patchwork)
+library(rvest)
 ```
 
-## Load the weather data
+    ## 
+    ## Attaching package: 'rvest'
+    ## 
+    ## The following object is masked from 'package:readr':
+    ## 
+    ##     guess_encoding
 
 ``` r
-weather_df = 
-  rnoaa::meteo_pull_monitors(
-    c("USW00094728", "USC00519397", "USS0023B17S"),
-    var = c("PRCP", "TMIN", "TMAX"), 
-    date_min = "2017-01-01",
-    date_max = "2017-12-31") %>%
-  mutate(
-    name = recode(
-      id, 
-      USW00094728 = "CentralPark_NY", 
-      USC00519397 = "Waikiki_HA",
-      USS0023B17S = "Waterhole_WA"),
-    tmin = tmin / 10,
-    tmax = tmax / 10,
-    month = lubridate::floor_date(date, unit = "month")) %>% 
-  select(name, id, everything())
+library(httr)
 ```
-
-    ## Registered S3 method overwritten by 'hoardr':
-    ##   method           from
-    ##   print.cache_info httr
-
-    ## using cached file: C:\Users\Admin\AppData\Local/Cache/R/noaa_ghcnd/USW00094728.dly
-
-    ## date created (size, mb): 2022-08-14 19:27:15 (8.408)
-
-    ## file min/max dates: 1869-01-01 / 2022-08-31
-
-    ## using cached file: C:\Users\Admin\AppData\Local/Cache/R/noaa_ghcnd/USC00519397.dly
-
-    ## date created (size, mb): 2022-08-14 19:27:27 (1.701)
-
-    ## file min/max dates: 1965-01-01 / 2020-02-29
-
-    ## using cached file: C:\Users\Admin\AppData\Local/Cache/R/noaa_ghcnd/USS0023B17S.dly
-
-    ## date created (size, mb): 2022-08-14 19:27:33 (0.95)
-
-    ## file min/max dates: 1999-09-01 / 2022-08-31
 
 ``` r
 library(tidyverse)
@@ -81,4 +49,64 @@ options(
 
 scale_colour_discrete = scale_colour_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
+```
+
+## Scrape a table
+
+I want the first table from [this
+page](http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm)
+
+``` r
+url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+drug_use_html = read_html(url)
+```
+
+extract the tables; focus on the first one
+
+``` r
+tabl_marj =
+  drug_use_html %>% 
+  html_nodes(css = "table") %>% 
+  first() %>%
+  html_table() %>% 
+  slice(-1) %>% 
+  as_tibble()
+```
+
+## Star Wars Movie Info
+
+I want the data from
+[here](%22https://www.imdb.com/list/ls070150896/%22)
+
+``` r
+url = "https://www.imdb.com/list/ls070150896/"
+
+swm_html = read_html(url)
+```
+
+Grab elements that I want
+
+``` r
+title_vec = 
+  swm_html %>% 
+  html_nodes(css = ".lister-item-header a") %>% 
+  html_text()
+
+
+gross_rev_vec = 
+  swm_html %>% 
+  html_nodes(css = ".text-small:nth-child(7) span:nth-child(5)") %>% 
+  html_text()
+
+runtime_vec =
+  swm_html %>% 
+  html_nodes(css = ".runtime") %>% 
+  html_text()
+
+swm_df =
+  tibble(
+    title = title_vec,
+    gross_rev = gross_rev_vec,
+    runtime = runtime_vec)
 ```
