@@ -157,3 +157,58 @@ brfss_2010 =
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+## some data arent so nice
+
+Let’s look at Pokemon…
+
+``` r
+pokemon =
+  GET("https://pokeapi.co/api/v2/pokemon/1") %>% 
+  content
+
+pokemon$name
+```
+
+    ## [1] "bulbasaur"
+
+``` r
+pokemon$height
+```
+
+    ## [1] 7
+
+``` r
+pokemon$abilities
+```
+
+    ## [[1]]
+    ## [[1]]$ability
+    ## [[1]]$ability$name
+    ## [1] "overgrow"
+    ## 
+    ## [[1]]$ability$url
+    ## [1] "https://pokeapi.co/api/v2/ability/65/"
+    ## 
+    ## 
+    ## [[1]]$is_hidden
+    ## [1] FALSE
+    ## 
+    ## [[1]]$slot
+    ## [1] 1
+    ## 
+    ## 
+    ## [[2]]
+    ## [[2]]$ability
+    ## [[2]]$ability$name
+    ## [1] "chlorophyll"
+    ## 
+    ## [[2]]$ability$url
+    ## [1] "https://pokeapi.co/api/v2/ability/34/"
+    ## 
+    ## 
+    ## [[2]]$is_hidden
+    ## [1] TRUE
+    ## 
+    ## [[2]]$slot
+    ## [1] 3
