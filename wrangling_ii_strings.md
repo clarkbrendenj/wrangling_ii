@@ -129,3 +129,65 @@ str_detect(string_vec, "\\[")
     ## [1]  TRUE FALSE  TRUE  TRUE
 
 ## Factors
+
+``` r
+factor_vec = factor(c("male", "male", "female", "female"))
+
+factor_vec
+```
+
+    ## [1] male   male   female female
+    ## Levels: female male
+
+``` r
+as.numeric(factor_vec)
+```
+
+    ## [1] 2 2 1 1
+
+what happens if i relevel..
+
+``` r
+factor_vec = fct_relevel(factor_vec, "male")
+
+factor_vec
+```
+
+    ## [1] male   male   female female
+    ## Levels: male female
+
+``` r
+as.numeric(factor_vec)
+```
+
+    ## [1] 1 1 2 2
+
+``` r
+nsduh_url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+tabl_marj = 
+  read_html(nsduh_url) %>% 
+  html_nodes(css = "table") %>% 
+  first() %>%
+  html_table() %>% 
+  slice(-1) %>% 
+  as_tibble()
+```
+
+``` r
+data_marj =
+  tabl_marj %>% 
+  select(-contains("P Value")) %>% 
+  pivot_longer(
+    -State,
+    names_to = "age_year",
+    values_to = "percent"
+  ) %>% 
+  separate(age_year, into = c("age", "year"), sep = "\\(") %>% 
+  mutate(
+    year = str_replace(year, "\\)", ""),
+    percent = str_replace(percent, "[a-c]$", ""),
+    percent = as.numeric(percent)
+  ) %>% 
+  filter(!State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West"))
+```
