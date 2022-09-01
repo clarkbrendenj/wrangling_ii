@@ -167,4 +167,11 @@ data_marj %>%
 
 
 
+```{r}
+str %>% 
+  mutate(
+    acc = str_extract(str$acc, "[[:digit:]]+"),
+    container = str_extract(str$acc, "[[:alpha:]]+")
+  )
+```
 
